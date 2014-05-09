@@ -49,23 +49,30 @@ private:
     
     RepeatForever   *_swingHealth;
     Sequence        *_shockWaveSequence;
-    Sequence        *_groundHit;
     Sequence        *_explosion;
+    Sequence        *_groundHit;
     ScaleTo         *_growBomb;
     ActionInterval  *_rotateSprite;
 
     Vector<Sprite *> _clouds;
     Vector<Sprite *> _meteorPool;
     Vector<Sprite *> _healthPool;
+    Vector<Sprite *> _fallingObjects;
 
     void createGameScreen();
     void createPools();
     void createActions();
+    void createAnimations();
+
+    Sequence* createGroundHitAnimation();
+
     void resetGame();
+    void resetMeteor();
     void stopGame();
 
     void shockWaveDone(Node *sender);
     void animationDone(Node *sender);
+    void fallingObjectDone(Node *sender);
     
     void onTouchesBegan(const std::vector<Touch *>& touches, Event *unused_event);
 
@@ -73,8 +80,11 @@ public:
     static cocos2d::Scene* createScene();
 
     virtual bool init() override;
+
     void update(float delta);
-    
+
+    ~GameLayer();
+
     CREATE_FUNC(GameLayer);
 };
 

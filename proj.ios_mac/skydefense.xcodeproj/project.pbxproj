@@ -15,6 +15,7 @@
 		17D54F60190EA9C0002B3EAA /* bombRelease.wav in Resources */ = {isa = PBXBuildFile; fileRef = 17D54F5B190EA9C0002B3EAA /* bombRelease.wav */; };
 		17D54F61190EA9C0002B3EAA /* fire_truck.wav in Resources */ = {isa = PBXBuildFile; fileRef = 17D54F5C190EA9C0002B3EAA /* fire_truck.wav */; };
 		17D54F62190EA9C0002B3EAA /* health.wav in Resources */ = {isa = PBXBuildFile; fileRef = 17D54F5D190EA9C0002B3EAA /* health.wav */; };
+		17D54F64191C58FF002B3EAA /* boom.wav in Resources */ = {isa = PBXBuildFile; fileRef = 17D54F63191C58FF002B3EAA /* boom.wav */; };
 		1AC6FB1F180E996B004C840B /* libbox2d Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC6FAFF180E9839004C840B /* libbox2d Mac.a */; };
 		1AC6FB20180E996B004C840B /* libchipmunk Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC6FAFD180E9839004C840B /* libchipmunk Mac.a */; };
 		1AC6FB21180E996B004C840B /* libcocos2dx Mac.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC6FAF9180E9839004C840B /* libcocos2dx Mac.a */; };
@@ -231,6 +232,7 @@
 		17D54F5B190EA9C0002B3EAA /* bombRelease.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = bombRelease.wav; sourceTree = "<group>"; };
 		17D54F5C190EA9C0002B3EAA /* fire_truck.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = fire_truck.wav; sourceTree = "<group>"; };
 		17D54F5D190EA9C0002B3EAA /* health.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = health.wav; sourceTree = "<group>"; };
+		17D54F63191C58FF002B3EAA /* boom.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = boom.wav; sourceTree = "<group>"; };
 		1AC6FAE5180E9839004C840B /* cocos2d_libs.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = cocos2d_libs.xcodeproj; path = ../cocos2d/build/cocos2d_libs.xcodeproj; sourceTree = "<group>"; };
 		1ACB3243164770DE00914215 /* libcurl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcurl.a; path = ../../cocos2dx/platform/third_party/ios/libraries/libcurl.a; sourceTree = "<group>"; };
 		1AFAF8B316D35DE700DB1158 /* AppDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AppDelegate.cpp; path = ../Classes/AppDelegate.cpp; sourceTree = "<group>"; };
@@ -471,6 +473,7 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				17D54F63191C58FF002B3EAA /* boom.wav */,
 				17D54F59190EA9C0002B3EAA /* background.mp3 */,
 				17D54F5A190EA9C0002B3EAA /* bombFail.wav */,
 				17D54F5B190EA9C0002B3EAA /* bombRelease.wav */,
@@ -660,6 +663,7 @@
 				50EF629917ECD46A001EB2F8 /* Icon-100.png in Resources */,
 				1AFAF8BC16D35E4900DB1158 /* CloseNormal.png in Resources */,
 				5087E78317EB970100C73F5D /* Icon-152.png in Resources */,
+				17D54F64191C58FF002B3EAA /* boom.wav in Resources */,
 				5087E77D17EB970100C73F5D /* Default-568h@2x.png in Resources */,
 				5087E78517EB970100C73F5D /* Icon-72.png in Resources */,
 				1AFAF8BD16D35E4900DB1158 /* CloseSelected.png in Resources */,
