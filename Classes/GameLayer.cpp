@@ -10,7 +10,6 @@ GameLayer::~GameLayer() {
     CC_SAFE_RELEASE(_groundHit);
     CC_SAFE_RELEASE(_explosion);
     CC_SAFE_RELEASE(_growBomb);
-    CC_SAFE_RELEASE(_shockWaveSequence);
     CC_SAFE_RELEASE(_rotateSprite);
 }
 
@@ -32,10 +31,10 @@ bool GameLayer::init()
 
     auto listener = EventListenerTouchAllAtOnce::create();
     listener->onTouchesBegan = CC_CALLBACK_2(GameLayer::onTouchesBegan, this);
-    
+
     auto dispatcher = Director::getInstance()->getEventDispatcher();
     dispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-    
+
     _screenSize = Director::getInstance()->getWinSize();
 
     createGameScreen();
@@ -43,7 +42,7 @@ bool GameLayer::init()
     createActions();
 
     schedule(schedule_selector(GameLayer::update));
-    
+
     SimpleAudioEngine::getInstance()->playBackgroundMusic("background.mp3");
 
     return true;
@@ -59,7 +58,7 @@ void GameLayer::createGameScreen()
     addChild(bg);
 
     SpriteFrameCache::getInstance()->addSpriteFramesWithFile("sprite_sheet.plist", "sprite_sheet.png");
-    
+
     // create cityscape
     Sprite *sprite = nullptr;
     for (auto i = 0; i < 2; i++) {
@@ -87,7 +86,7 @@ void GameLayer::createGameScreen()
         });
         addChild(sprite, kForeground);
     }
-    
+
     // create labels
     _scoreDisplay = Label::createWithBMFont("font.fnt", "0");
     _scoreDisplay->setWidth(_screenSize.width * 0.3f);
@@ -128,7 +127,7 @@ void GameLayer::createGameScreen()
         size.width * 0.72f, size.height * 0.72f
     });
     _bomb->addChild(sparkle, kBackground, kSpriteSparkle);
-    
+
     // add halo inside the bomb sprite
     Sprite *halo = Sprite::createWithSpriteFrameName("halo.png");
     halo->setPosition(Point{
@@ -142,14 +141,14 @@ void GameLayer::createGameScreen()
     _shockWave->getTexture()->generateMipmap();
     _shockWave->setVisible(false);
     addChild(_shockWave);
-    
+
     // create messages
     _introMessage = Sprite::createWithSpriteFrameName("logo.png");
     _introMessage->setPosition(Point{
         _screenSize.width * 0.5f, _screenSize.height * 0.6f
     });
     addChild(_introMessage, kForeground);
-    
+
     _gameOverMessage = Sprite::createWithSpriteFrameName("gameover.png");
     _gameOverMessage->setPosition(Point{
         _screenSize.width * 0.5f, _screenSize.height * 0.65f
@@ -165,7 +164,7 @@ void GameLayer::createPools() {
         addChild(sprite, kMiddleground, kSpriteMeteor);
         _meteorPool.pushBack(sprite);
     }
-    
+
     for (int i = 0; i < 20; i++) {
         auto sprite = Sprite::createWithSpriteFrameName("health.png");
         sprite->setVisible(false);
@@ -178,15 +177,9 @@ void GameLayer::createActions() {
     auto easeSwing = Sequence::create(
       EaseInOut::create(RotateTo::create(1.2f, -10), 2),
       EaseInOut::create(RotateTo::create(1.2f, 10), 2),
-      NULL
+      nullptr
     );
     _swingHealth = RepeatForever::create(easeSwing);
-
-    _shockWaveSequence = Sequence::create(FadeOut::create(1.0f),
-                                          CallFuncN::create(
-                                            std::bind(&GameLayer::shockWaveDone, this, std::placeholders::_1)),
-                                          nullptr);
-    _shockWaveSequence->retain();
 
     _growBomb = ScaleTo::create(6.0f, 1.0);
     _growBomb->retain();
@@ -242,12 +235,12 @@ void GameLayer::onTouchesBegan(const std::vector<Touch *>& touches, Event *unuse
         }
 
         resetGame();
-        
+
         return;
     }
-    
+
     Touch *touch = touches[0];
-    
+
     if (touch) {
         if (_bomb->isVisible()) {
             // stop all actions in bomb, halo and sparkle
@@ -260,11 +253,12 @@ void GameLayer::onTouchesBegan(const std::vector<Touch *>& touches, Event *unuse
 
             // if bomb is the right scale, then create the shockwave
             if (_bomb->getScale() > 0.3f) {
+                auto sequence = createShockWaveSequence();
                 _shockWave->setScale(0.1f);
                 _shockWave->setPosition(_bomb->getPosition());
                 _shockWave->setVisible(true);
                 _shockWave->runAction(ScaleTo::create(0.5f, _bomb->getScale() * 2.0f));
-                _shockWave->runAction(_shockWaveSequence);
+                _shockWave->runAction(sequence);
                 SimpleAudioEngine::getInstance()->playEffect("bombRelease.wav");
             } else {
                 SimpleAudioEngine::getInstance()->playEffect("bombFail.wav");
@@ -346,6 +340,14 @@ void GameLayer::update(float delta) {
         resetMeteor();
     }
 
+    if (_bomb->isVisible()) {
+      if (_bomb->getScale() > 0.3f) {
+        if (_bomb->getOpacity() != 255) {
+          _bomb->setOpacity(255);
+        }
+      }
+    }
+
     // check collision with shockwave
     if (_shockWave->isVisible()) {
         float diffx, diffy;
@@ -356,9 +358,17 @@ void GameLayer::update(float delta) {
                 fallingObject->stopAllActions();
                 fallingObject->runAction(_explosion->clone());
                 SimpleAudioEngine::getInstance()->playEffect("boom.wav");
+                if (fallingObject->getTag() == kSpriteMeteor) {
+                  _shockWaveHits++;
+                  _score += _shockWaveHits * 13 + _shockWaveHits * 2;
+                }
                 _fallingObjects.eraseObject(fallingObject);
             }
         }
+
+        char szValue[100] = {0};
+        std::sprintf(szValue, "%i", _score);
+        _scoreDisplay->setString(szValue);
     }
 
     // move the clouds
@@ -374,18 +384,18 @@ void GameLayer::resetMeteor() {
     if (_fallingObjects.size() > 30) {
         return;
     }
-    
+
     Sprite *meteor = _meteorPool.at(_meteorPoolIndex++);
     if (_meteorPoolIndex == _meteorPool.size()) {
         _meteorPoolIndex = 0;
     }
-    
+
     int meteor_x = rand() % (int) (_screenSize.width * 0.8f) + _screenSize.width * 0.1f;
     int meteor_target_x = rand() % (int) (_screenSize.width * 0.8f) + _screenSize.width * 0.1f;
-    
+
     meteor->stopAllActions();
     meteor->setPosition(Point{meteor_x, _screenSize.height + meteor->boundingBox().size.height * 0.5});
-    
+
     auto rotate = RotateBy::create(0.5f, -90);
     auto rotateForever = RepeatForever::create(rotate);
     auto sequence = Sequence::create(MoveTo::create(_meteorSpeed, Point{meteor_target_x, _screenSize.height * 0.15f}),
@@ -403,10 +413,18 @@ void GameLayer::fallingObjectDone(cocos2d::Node *sender) {
     _fallingObjects.eraseObject(static_cast<Sprite *>(sender));
     sender->stopAllActions();
     sender->setRotation(0);
-    
+
     if (sender->getTag() == kSpriteMeteor) {
         _energy -= 15;
         sender->runAction(_groundHit);
         SimpleAudioEngine::getInstance()->playEffect("boom.wav");
     }
 }
+
+Sequence* GameLayer::createShockWaveSequence() {
+    return Sequence::create(FadeOut::create(1.0f),
+                            CallFuncN::create(
+                              std::bind(&GameLayer::shockWaveDone, this, std::placeholders::_1)),
+                            nullptr);
+}
+

@@ -27,15 +27,15 @@ private:
     int     _score           = 0;
     int     _energy          = 0;
     bool    _running         = false;
-    
+
     int     _meteorSpeed;
     float   _meteorInterval;
     float   _meteorTimer;
-    
+
     float   _healthInterval;
     float   _healthTimer;
     float   _healthSpeed;
-    
+
     float   _difficultyInterval;
     float   _difficultyTimer;
 
@@ -46,9 +46,8 @@ private:
     Sprite *_shockWave;
     Sprite *_introMessage;
     Sprite *_gameOverMessage;
-    
+
     RepeatForever   *_swingHealth;
-    Sequence        *_shockWaveSequence;
     Sequence        *_explosion;
     Sequence        *_groundHit;
     ScaleTo         *_growBomb;
@@ -65,6 +64,7 @@ private:
     void createAnimations();
 
     Sequence* createGroundHitAnimation();
+    Sequence* createShockWaveSequence();
 
     void resetGame();
     void resetMeteor();
@@ -73,7 +73,7 @@ private:
     void shockWaveDone(Node *sender);
     void animationDone(Node *sender);
     void fallingObjectDone(Node *sender);
-    
+
     void onTouchesBegan(const std::vector<Touch *>& touches, Event *unused_event);
 
 public:
@@ -83,7 +83,7 @@ public:
 
     void update(float delta);
 
-    ~GameLayer();
+    virtual ~GameLayer();
 
     CREATE_FUNC(GameLayer);
 };

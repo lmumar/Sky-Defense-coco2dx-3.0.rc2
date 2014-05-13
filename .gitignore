@@ -17,6 +17,8 @@ DerivedData
 *.ipa
 *.xcuserstate
 bin/
+*.*~
+tags
 
 # CocoaPods
 #
