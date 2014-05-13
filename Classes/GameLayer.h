@@ -68,6 +68,7 @@ private:
 
     void resetGame();
     void resetMeteor();
+    void resetHealth();
     void stopGame();
 
     void shockWaveDone(Node *sender);

@@ -340,6 +340,12 @@ void GameLayer::update(float delta) {
         resetMeteor();
     }
 
+    _healthTimer += delta;
+    if (_healthTimer > _healthInterval) {
+      _healthTimer = 0;
+      resetHealth();
+    }
+
     if (_bomb->isVisible()) {
       if (_bomb->getScale() > 0.3f) {
         if (_bomb->getOpacity() != 255) {
@@ -409,6 +415,34 @@ void GameLayer::resetMeteor() {
     _fallingObjects.pushBack(meteor);
 }
 
+void GameLayer::resetHealth() {
+  if (_fallingObjects.size() > 30) {
+    return;
+  }
+
+  Sprite *health = _healthPool.at(_healthPoolIndex++);
+  if (_healthPoolIndex == _healthPool.size()) {
+    _healthPoolIndex = 0;
+  }
+
+  int health_x = rand() % (int)(_screenSize.width * 0.8f) + _screenSize.width * 0.1f;
+  int health_target_x = rand() % (int)(_screenSize.width * 0.8f) + _screenSize.width * 0.1f;
+
+  health->stopAllActions();
+  health->setPosition(Point{health_x, _screenSize.height + health->boundingBox().size.height * 0.5});
+
+  auto sequence = Sequence::create(
+    MoveTo::create(_healthSpeed, Point{health_target_x, _screenSize.height * 0.15f}),
+    CallFuncN::create(
+      std::bind(&GameLayer::fallingObjectDone, this, std::placeholders::_1)),
+    nullptr
+  );
+
+  health->setVisible(true);
+  health->runAction(sequence);
+  _fallingObjects.pushBack(health);
+}
+
 void GameLayer::fallingObjectDone(cocos2d::Node *sender) {
     _fallingObjects.eraseObject(static_cast<Sprite *>(sender));
     sender->stopAllActions();
@@ -418,7 +452,33 @@ void GameLayer::fallingObjectDone(cocos2d::Node *sender) {
         _energy -= 15;
         sender->runAction(_groundHit);
         SimpleAudioEngine::getInstance()->playEffect("boom.wav");
+    } else {
+        sender->setVisible(false);
+        if (_energy == 100) {
+          _score += 25;
+          char score[100] = {0};
+          std::sprintf(score, "%i", _score);
+          _scoreDisplay->setString(score);
+        } else {
+          _energy += 10;
+          if (_energy > 100) {
+            _energy = 100;
+          }
+        }
+
+        SimpleAudioEngine::getInstance()->playEffect("health.wav");
     }
+
+    if (_energy <= 0) {
+      _energy = 0;
+      stopGame();
+      SimpleAudioEngine::getInstance()->playEffect("fire_truck.wav");
+      _gameOverMessage->setVisible(true);
+    }
+
+    char szValue[100] = {0};
+    std::sprintf(szValue, "%i%s", _energy, "%");
+    _energyDisplay->setString(szValue);
 }
 
 Sequence* GameLayer::createShockWaveSequence() {
